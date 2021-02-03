@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="robot_essentials" >
+<xacro:property name="camera_link" value="0.05" /> <!-- Size of square 'camera' box -->
+
+<!--######################################################################-->
+<xacro:macro name="robot_wheel" params="prefix">
+
+<link name="${prefix}_wheel">
+    <inertial>
+      <origin
+        xyz="-4.1867E-18 0.0068085 -1.65658661799998E-18"
+        rpy="0 0 0" />
+      <mass
+        value="2.6578" />
+      <inertia
+        ixx="0.00856502765719703"
+        ixy="1.5074118157338E-19"
+        ixz="-4.78150098725052E-19"
+        iyy="0.013670640432096"
+        iyz="-2.68136447099727E-19"
+        izz="0.00856502765719703" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="1.5707963267949 0 0" />
+      <geometry>
+        <mesh filename="package://robot_description/meshes/wheel.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="1.5707963267949 0 0" />
+      <geometry>
+        <mesh filename="package://robot_description/meshes/wheel.stl" />
+      </geometry>
+    </collision>
+  </link>
+
+</xacro:macro>
+
+<!--######################################################################-->
+<xacro:macro name="wheel_joint" params="prefix origin">
+
+<joint name="${prefix}_wheel_joint" type="continuous">
+    <axis xyz="0 1 0"/>
+    <parent link ="base_link"/>
+    <child link ="${prefix}_wheel"/>
+    <origin rpy ="0 0 0" xyz= "${origin}"/>
+  </joint>
+
+</xacro:macro>
+
+<!--######################################################################-->
+<xacro:macro name="base_transmission" params="prefix ">
+
+<transmission name="${prefix}_wheel_trans" type="SimpleTransmission">
+  <type>transmission_interface/SimpleTransmission</type>
+  <actuator name="${prefix}_wheel_motor">
+   <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+   <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+  <joint name="${prefix}_wheel_joint">
+   <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+  </joint>
+</transmission>
+
+</xacro:macro>
+
+<!--######################################################################-->
+<xacro:macro name="camera_join">
+  <joint name="camera_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz=".25 0 .25" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="camera_link"/>
+  </joint>
+</xacro:macro>
+
+<!--######################################################################-->
+<xacro:macro name="camera">
+  <!-- Camera -->
+  <link name="camera_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+    <box size="${camera_link} ${camera_link} ${camera_link}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+    <box size="${camera_link} ${camera_link} ${camera_link}"/>
+      </geometry>
+      <material name=""/>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+</xacro:macro>
+
+<!--######################################################################-->
+
+</robot>
