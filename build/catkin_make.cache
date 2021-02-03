@@ -1,0 +1,2 @@
+
+-DCATKIN_DEVEL_PREFIX=/home/rubaduben/github_robots/row_crop_navigator/devel -DCMAKE_INSTALL_PREFIX=/home/rubaduben/github_robots/row_crop_navigator/install -G Unix Makefiles
