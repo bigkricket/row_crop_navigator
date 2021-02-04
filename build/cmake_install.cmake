@@ -131,6 +131,9 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/rubaduben/github_robots/row_crop_navigator/build/gtest/cmake_install.cmake")
+  include("/home/rubaduben/github_robots/row_crop_navigator/build/blender_gazebo/cmake_install.cmake")
+  include("/home/rubaduben/github_robots/row_crop_navigator/build/rowcrop_world/cmake_install.cmake")
+  include("/home/rubaduben/github_robots/row_crop_navigator/build/robot_description/cmake_install.cmake")
 
 endif()
 

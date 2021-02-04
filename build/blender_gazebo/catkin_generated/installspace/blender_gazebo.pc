@@ -1,0 +1,8 @@
+prefix=/home/rubaduben/github_robots/row_crop_navigator/install
+
+Name: blender_gazebo
+Description: Description of blender_gazebo
+Version: 0.0.4
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

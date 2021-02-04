@@ -7,7 +7,4 @@
 # new environment variables
 
 # modified environment variables
-export CMAKE_PREFIX_PATH="/home/rubaduben/github_robots/row_crop_navigator/devel:$CMAKE_PREFIX_PATH"
 export PWD='/home/rubaduben/github_robots/row_crop_navigator/build'
-export ROSLISP_PACKAGE_DIRECTORIES='/home/rubaduben/github_robots/row_crop_navigator/devel/share/common-lisp'
-export ROS_PACKAGE_PATH="/home/rubaduben/github_robots/row_crop_navigator/src:$ROS_PACKAGE_PATH"

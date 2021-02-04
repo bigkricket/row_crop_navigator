@@ -1,0 +1,8 @@
+prefix=/home/rubaduben/github_robots/row_crop_navigator/devel
+
+Name: rowcrop_world
+Description: Description of rowcrop_world
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
