@@ -7,4 +7,5 @@
 subdirs("gtest")
 subdirs("blender_gazebo")
 subdirs("rowcrop_world")
+subdirs("rowcrop_scripts")
 subdirs("robot_description")
