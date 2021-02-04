@@ -78,7 +78,7 @@
 <xacro:macro name="camera_join">
   <joint name="camera_joint" type="fixed">
     <axis xyz="0 1 0" />
-    <origin xyz=".25 0 .25" rpy="0 0 0"/>
+    <origin xyz=".3 0 .45" rpy="0 0 0"/>
     <parent link="base_link"/>
     <child link="camera_link"/>
   </joint>

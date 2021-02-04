@@ -1,0 +1,5 @@
+<launch>
+  <param name="small_plant_Cube.031_description" command="$(find xacro)/xacro --inorder '$(find rowcrop_world)/urdf/small_plant_Cube.031.urdf.xacro'" />
+
+  <node name="spawn_small_plant_Cube.031" pkg="gazebo_ros" type="spawn_model" args="-param small_plant_Cube.031_description -urdf -model small_plant_Cube.031" respawn="false" />
+</launch>
