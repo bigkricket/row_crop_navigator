@@ -91,15 +91,15 @@ endif()
 # flag project as catkin-based to distinguish if a find_package()-ed project is a catkin project
 set(rowcrop_scripts_FOUND_CATKIN_PROJECT TRUE)
 
-if(NOT "/home/rubaduben/github_robots/row_crop_navigator/devel/include " STREQUAL " ")
+if(NOT "/home/rubaduben/github_robots/row_crop_navigator/devel/include;/home/rubaduben/github_robots/row_crop_navigator/src/rowcrop_scripts/include " STREQUAL " ")
   set(rowcrop_scripts_INCLUDE_DIRS "")
-  set(_include_dirs "/home/rubaduben/github_robots/row_crop_navigator/devel/include")
+  set(_include_dirs "/home/rubaduben/github_robots/row_crop_navigator/devel/include;/home/rubaduben/github_robots/row_crop_navigator/src/rowcrop_scripts/include")
   if(NOT " " STREQUAL " ")
     set(_report "Check the issue tracker '' and consider creating a ticket if the problem has not been reported yet.")
   elseif(NOT " " STREQUAL " ")
     set(_report "Check the website '' for information and consider reporting the problem.")
   else()
-    set(_report "Report the problem to the maintainer 'rubaduben <rubaduben@todo.todo>' and request to fix the problem.")
+    set(_report "Report the problem to the maintainer 'Ruben <perezben37@gmail.com>' and request to fix the problem.")
   endif()
   foreach(idir ${_include_dirs})
     if(IS_ABSOLUTE ${idir} AND IS_DIRECTORY ${idir})
@@ -116,7 +116,7 @@ if(NOT "/home/rubaduben/github_robots/row_crop_navigator/devel/include " STREQUA
   endforeach()
 endif()
 
-set(libraries "")
+set(libraries "rowcrop_scripts")
 foreach(library ${libraries})
   # keep build configuration keywords, target names and absolute libraries as-is
   if("${library}" MATCHES "^(debug|optimized|general)$")
@@ -185,7 +185,7 @@ foreach(t ${rowcrop_scripts_EXPORTED_TARGETS})
   endif()
 endforeach()
 
-set(depends "message_runtime")
+set(depends "roscpp;rospy;std_msgs;message_runtime")
 foreach(depend ${depends})
   string(REPLACE " " ";" depend_list ${depend})
   # the package name of the dependency must be kept in a unique variable so that it is not overwritten in recursive calls

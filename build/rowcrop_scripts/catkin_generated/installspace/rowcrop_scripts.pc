@@ -4,5 +4,5 @@ Name: rowcrop_scripts
 Description: Description of rowcrop_scripts
 Version: 0.0.0
 Cflags: -I${prefix}/include
-Libs: -L${prefix}/lib 
-Requires: message_runtime
+Libs: -L${prefix}/lib -lrowcrop_scripts
+Requires: roscpp rospy std_msgs message_runtime

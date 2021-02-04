@@ -8,4 +8,3 @@
 
 # modified environment variables
 export PWD='/home/rubaduben/github_robots/row_crop_navigator/build'
-export PYTHONPATH="/home/rubaduben/github_robots/row_crop_navigator/devel/lib/python3/dist-packages:$PYTHONPATH"

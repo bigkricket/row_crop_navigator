@@ -3,6 +3,6 @@ prefix=/home/rubaduben/github_robots/row_crop_navigator/devel
 Name: rowcrop_scripts
 Description: Description of rowcrop_scripts
 Version: 0.0.0
-Cflags: -I/home/rubaduben/github_robots/row_crop_navigator/devel/include
-Libs: -L${prefix}/lib 
-Requires: message_runtime
+Cflags: -I/home/rubaduben/github_robots/row_crop_navigator/devel/include -I/home/rubaduben/github_robots/row_crop_navigator/src/rowcrop_scripts/include
+Libs: -L${prefix}/lib -lrowcrop_scripts
+Requires: roscpp rospy std_msgs message_runtime
