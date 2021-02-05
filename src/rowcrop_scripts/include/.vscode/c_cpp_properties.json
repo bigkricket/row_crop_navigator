@@ -1,0 +1,19 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "",
+        "limitSymbolsToIncludedHeaders": true
+      },
+      "includePath": [
+        "/home/rubaduben/github_robots/row_crop_navigator/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/rubaduben/github_robots/row_crop_navigator/src/robot_description/include/**",
+        "/home/rubaduben/github_robots/row_crop_navigator/src/rowcrop_scripts/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS"
+    }
+  ],
+  "version": 4
+}
