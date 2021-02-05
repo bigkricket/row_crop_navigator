@@ -70,8 +70,8 @@ def crop_detect(image,                  #-- The frame (cv standard)
 
     #- build default crop detection parameters, if none have been provided
     if crop_params is None:
-        # Set up the Simplecropdetector with default parameters.
-        params = cv2.SimplecropDetector_Params()
+        # Set up the SimpleBlobdetector with default parameters.
+        params = cv2.SimpleBlobDetector_Params()
          
         # Change thresholds
         params.minThreshold = 0;
@@ -98,7 +98,7 @@ def crop_detect(image,                  #-- The frame (cv standard)
         params = crop_params     
 
     #- Apply crop detection
-    detector = cv2.SimplecropDetector_create(params)
+    detector = cv2.SimpleBlobDetector_create(params)
 
     # Reverse the mask: crops are black on white
     reversemask = 255-mask
@@ -236,8 +236,8 @@ def get_crop_relative_position(image, keyPoint):
 if __name__=="__main__":
 
     #--- Define HSV limits
-    blue_min = (77,40,0)
-    blue_max = (101, 255, 255) 
+    green_min = (77,40,0)
+    green_max = (101, 255, 255) 
     
     #--- Define area limit [x_min, y_min, x_max, y_max] adimensional (0.0 to 1.0) starting from top left corner
     window = [0.25, 0.25, 0.65, 0.75]
@@ -253,7 +253,7 @@ if __name__=="__main__":
             ret, frame = cap.read()
             
             #-- Detect keypoints
-            keypoints, _ = crop_detect(frame, blue_min, blue_max, blur=3, 
+            keypoints, _ = crop_detect(frame, green_min, green_max, blur=3, 
                                         crop_params=None, search_window=window, imshow=False)
             #-- Draw search window
             frame     = draw_window(frame, window)
@@ -274,7 +274,7 @@ if __name__=="__main__":
 
         for image in image_list:
             #-- Detect keypoints
-            keypoints, _ = crop_detect(image, blue_min, blue_max, blur=5, 
+            keypoints, _ = crop_detect(image, green_min, green_max, blur=5, 
                                         crop_params=None, search_window=window, imshow=True)
             
             image    = blur_outside(image, blur=15, window_adim=window)

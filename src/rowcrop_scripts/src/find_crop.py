@@ -57,8 +57,8 @@ class cropDetector:
         self.crop_pub  = rospy.Publisher("/crop/point_crop",Point,queue_size=1)
 
         self.bridge = CvBridge()
-        self.image_sub = rospy.Subscriber("/raspicam_node/image",Image,self.callback)
-        print ("<< Subscribed to topic /raspicam_node/image")
+        self.image_sub = rospy.Subscriber("/agbot/camera1/image_raw",Image,self.callback)
+        print ("<< Subscribed to topic /agbot/image")
         
     def set_threshold(self, thr_min, thr_max):
         self._threshold = [thr_min, thr_max]
@@ -101,6 +101,9 @@ class cropDetector:
             
             cv_image    = draw_keypoints(cv_image, keypoints) 
             
+            cv2.imshow("Image window", cv_image)
+            cv2.waitKey(3)
+
             try:
                 self.image_pub.publish(self.bridge.cv2_to_imgmsg(cv_image, "bgr8"))
                 self.mask_pub.publish(self.bridge.cv2_to_imgmsg(mask, "8UC1"))
@@ -127,12 +130,12 @@ class cropDetector:
             self._t0 = time.time()
             
 def main(args):
-    blue_min = (77,40,0)
-    blue_max = (101, 255, 255) 
-    # blue_min = (82,31,62)
-    # blue_max = (106, 116, 193)     
-    blue_min = (55,40,0)
-    blue_max = (150, 255, 255)     
+    green_min = (77,40,0)
+    green_max = (101, 255, 255) 
+    # green_min = (82,31,62)
+    # green_max = (106, 116, 193)     
+    green_min = (25,52,72)
+    green_max = (126, 255, 255)     
     
     blur     = 5
     min_size = 10
@@ -146,11 +149,11 @@ def main(args):
     
     detection_window = [x_min, y_min, x_max, y_max]
     
-    params = cv2.SimplecropDetector_Params()
+    params = cv2.SimpleBlobDetector_Params()
          
     # Change thresholds
-    params.minThreshold = 0;
-    params.maxThreshold = 100;
+    params.minThreshold = 0
+    params.maxThreshold = 100
      
     # Filter by Area.
     params.filterByArea = True
@@ -169,7 +172,7 @@ def main(args):
     params.filterByInertia = True
     params.minInertiaRatio = 0.7   
 
-    ic = cropDetector(blue_min, blue_max, blur, params, detection_window)
+    ic = cropDetector(green_min, green_max, blur, params, detection_window)
     rospy.init_node('crop_detector', anonymous=True)
     try:
         rospy.spin()
