@@ -14,61 +14,80 @@ Author: Tiziano Fiorenzani
 # Standard imports
 import cv2
 import numpy as np
+import imutils
 
-#---------- crop detecting function: returns keypoints and mask
-#-- return keypoints, reversemask
-def crop_detect(image,                  #-- The frame (cv standard)
-                hsv_min,                #-- minimum threshold of the hsv filter [h_min, s_min, v_min]
-                hsv_max,                #-- maximum threshold of the hsv filter [h_max, s_max, v_max]
-                blur=0,                 #-- blur value (default 0)
-                crop_params=None,       #-- crop parameters (default None)
-                search_window=None,     #-- window where to search as [x_min, y_min, x_max, y_max] adimensional (0.0 to 1.0) starting from top left corner
+# ---------- crop detecting function: returns keypoints and mask
+# -- return keypoints, reversemask
+
+
+def crop_detect(image,  # -- The frame (cv standard)
+                # -- minimum threshold of the hsv filter [h_min, s_min, v_min]
+                hsv_min,
+                # -- maximum threshold of the hsv filter [h_max, s_max, v_max]
+                hsv_max,
+                blur=0,  # -- blur value (default 0)
+                crop_params=None,  # -- crop parameters (default None)
+                # -- window where to search as [x_min, y_min, x_max, y_max] adimensional (0.0 to 1.0) starting from top left corner
+                search_window=None,
                 imshow=False
                ):
 
-    #- Blur image to remove noise
-    if blur > 0: 
-        image    = cv2.blur(image, (blur, blur))
-        #- Show result
+    # - Blur image to remove noise
+    if blur > 0:
+        image = cv2.blur(image, (blur, blur))
+        # - Show result
         if imshow:
             cv2.imshow("Blur", image)
             cv2.waitKey(0)
-        
-    #- Search window
+
+    # - Search window
     if search_window is None: search_window = [0.0, 0.0, 1.0, 1.0]
-    
-    #- Convert image from BGR to HSV
-    hsv     = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    
-    #- Apply HSV threshold
-    mask    = cv2.inRange(hsv,hsv_min, hsv_max)
-    
-    #- Show HSV Mask
+
+    # - Convert image from BGR to HSV
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+    # - Apply HSV threshold
+    mask = cv2.inRange(hsv, hsv_min, hsv_max)
+
+    # - Show HSV Mask
     if imshow:
         cv2.imshow("HSV Mask", mask)
-    
-    #- dilate makes the in range areas larger
+
+    # - dilate makes the in range areas larger
     mask = cv2.dilate(mask, None, iterations=2)
-    #- Show HSV Mask
+    # - Show HSV Mask
     if imshow:
-        cv2.imshow("Dilate Mask", mask)   
+        cv2.imshow("Dilate Mask", mask)
         cv2.waitKey(0)
-        
+
     mask = cv2.erode(mask, None, iterations=2)
-    
-    #- Show dilate/erode mask
+
+    # - Show dilate/erode mask
     if imshow:
         cv2.imshow("Erode Mask", mask)
         cv2.waitKey(0)
-    
-    #- Cut the image using the search mask
+
+    # - Cut the image using the search mask
     mask = apply_search_window(mask, search_window)
-    
+
     if imshow:
         cv2.imshow("Searching Mask", mask)
         cv2.waitKey(0)
 
-    #- build default crop detection parameters, if none have been provided
+    # find contours in the thresholded image
+    cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
+	cv2.CHAIN_APPROX_SIMPLE)
+    cnts = imutils.grab_contours(cnts)
+
+    # loop over the contours
+    for c in cnts:
+	    # compute the center of the contour
+	    M = cv2.moments(c)
+        cX = int(M["m10"] / M["m00"])
+	    cY = int(M["m01"] / M["m00"])
+        keypoints[c] = cv2.KeyPoint(cX, cY, 1)
+	    
+    # - build default crop detection parameters, if none have been provided
     if crop_params is None:
         # Set up the SimpleBlobdetector with default parameters.
         params = cv2.SimpleBlobDetector_Params()
@@ -83,21 +102,21 @@ def crop_detect(image,                  #-- The frame (cv standard)
         params.maxArea = 20000
          
         # Filter by Circularity
-        params.filterByCircularity = True
+        params.filterByCircularity = False
         params.minCircularity = 0.1
          
         # Filter by Convexity
-        params.filterByConvexity = True
+        params.filterByConvexity = False
         params.minConvexity = 0.5
          
         # Filter by Inertia
-        params.filterByInertia =True
+        params.filterByInertia =False
         params.minInertiaRatio = 0.5
          
     else:
         params = crop_params     
 
-    #- Apply crop detection
+    # - Apply crop detection
     detector = cv2.SimpleBlobDetector_create(params)
 
     # Reverse the mask: crops are black on white
@@ -107,20 +126,25 @@ def crop_detect(image,                  #-- The frame (cv standard)
         cv2.imshow("Reverse Mask", reversemask)
         cv2.waitKey(0)
         
-    keypoints = detector.detect(reversemask)
+    # keypoints = detector.detect(reversemask)
 
     return keypoints, reversemask
 
-#---------- Draw detected crops: returns the image
-#-- return(im_with_keypoints)
+# ---------- Draw detected crops: returns the image
+# -- return(im_with_keypoints)
 def draw_keypoints(image,                   #-- Input image
                    keypoints,               #-- CV keypoints
                    line_color=(0,0,255),    #-- line's color (b,g,r)
                    imshow=False             #-- show the result
                   ):
+        # draw the contour and center of the shape on the image
+	    cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
+	    cv2.circle(image, (cX, cY), 7, (255, 255, 255), -1)
+	    cv2.putText(image, "center", (cX - 20, cY - 20),
+		cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
     
-    #-- Draw detected crops as red circles.
-    #-- cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS ensures the size of the circle corresponds to the size of crop
+    # -- Draw detected crops as red circles.
+    # -- cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS ensures the size of the circle corresponds to the size of crop
     im_with_keypoints = cv2.drawKeypoints(image, keypoints, np.array([]), line_color, cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
  
     if imshow:
@@ -129,8 +153,8 @@ def draw_keypoints(image,                   #-- Input image
         
     return(im_with_keypoints)
 
-#---------- Draw search window: returns the image
-#-- return(image)
+# ---------- Draw search window: returns the image
+# -- return(image)
 def draw_window(image,              #- Input image
                 window_adim,        #- window in adimensional units
                 color=(255,0,0),    #- line's color
@@ -146,7 +170,7 @@ def draw_window(image,              #- Input image
     x_max_px    = int(cols*window_adim[2])
     y_max_px    = int(rows*window_adim[3])  
     
-    #-- Draw a rectangle from top left to bottom right corner
+    # -- Draw a rectangle from top left to bottom right corner
     image = cv2.rectangle(image,(x_min_px,y_min_px),(x_max_px,y_max_px),color,line)
     
     if imshow:
@@ -155,8 +179,8 @@ def draw_window(image,              #- Input image
 
     return(image)
 
-#---------- Draw X Y frame
-#-- return(image)
+# ---------- Draw X Y frame
+# -- return(image)
 def draw_frame(image,
                dimension=0.3,      #- dimension relative to frame size
                line=2              #- line's thickness
@@ -170,15 +194,15 @@ def draw_frame(image,
     
     line_length = int(size*dimension)
     
-    #-- X
+    # -- X
     image = cv2.line(image, (center_x, center_y), (center_x+line_length, center_y), (0,0,255), line)
-    #-- Y
+    # -- Y
     image = cv2.line(image, (center_x, center_y), (center_x, center_y+line_length), (0,255,0), line)
     
     return (image)
 
-#---------- Apply search window: returns the image
-#-- return(image)
+# ---------- Apply search window: returns the image
+# -- return(image)
 def apply_search_window(image, window_adim=[0.0, 0.0, 1.0, 1.0]):
     rows = image.shape[0]
     cols = image.shape[1]
@@ -187,17 +211,17 @@ def apply_search_window(image, window_adim=[0.0, 0.0, 1.0, 1.0]):
     x_max_px    = int(cols*window_adim[2])
     y_max_px    = int(rows*window_adim[3])    
     
-    #--- Initialize the mask as a black image
+    # --- Initialize the mask as a black image
     mask = np.zeros(image.shape,np.uint8)
     
-    #--- Copy the pixels from the original image corresponding to the window
+    # --- Copy the pixels from the original image corresponding to the window
     mask[y_min_px:y_max_px,x_min_px:x_max_px] = image[y_min_px:y_max_px,x_min_px:x_max_px]   
     
-    #--- return the mask
+    # --- return the mask
     return(mask)
     
-#---------- Apply a blur to the outside search region
-#-- return(image)
+# ---------- Apply a blur to the outside search region
+# -- return(image)
 def blur_outside(image, blur=5, window_adim=[0.0, 0.0, 1.0, 1.0]):
     rows = image.shape[0]
     cols = image.shape[1]
@@ -206,19 +230,19 @@ def blur_outside(image, blur=5, window_adim=[0.0, 0.0, 1.0, 1.0]):
     x_max_px    = int(cols*window_adim[2])
     y_max_px    = int(rows*window_adim[3])    
     
-    #--- Initialize the mask as a black image
+    # --- Initialize the mask as a black image
     mask    = cv2.blur(image, (blur, blur))
     
-    #--- Copy the pixels from the original image corresponding to the window
+    # --- Copy the pixels from the original image corresponding to the window
     mask[y_min_px:y_max_px,x_min_px:x_max_px] = image[y_min_px:y_max_px,x_min_px:x_max_px]   
     
     
     
-    #--- return the mask
+    # --- return the mask
     return(mask)
     
-#---------- Obtain the camera relative frame coordinate of one single keypoint
-#-- return(x,y)
+# ---------- Obtain the camera relative frame coordinate of one single keypoint
+# -- return(x,y)
 def get_crop_relative_position(image, keyPoint):
     rows = float(image.shape[0])
     cols = float(image.shape[1])
@@ -232,18 +256,18 @@ def get_crop_relative_position(image, keyPoint):
         
  
         
-#----------- TEST
+# ----------- TEST
 if __name__=="__main__":
 
-    #--- Define HSV limits
+    # --- Define HSV limits
     green_min = (77,40,0)
     green_max = (101, 255, 255) 
     
-    #--- Define area limit [x_min, y_min, x_max, y_max] adimensional (0.0 to 1.0) starting from top left corner
+    # --- Define area limit [x_min, y_min, x_max, y_max] adimensional (0.0 to 1.0) starting from top left corner
     window = [0.25, 0.25, 0.65, 0.75]
     
-    #-- IMAGE_SOURCE: either 'camera' or 'imagelist'
-    #SOURCE = 'video'
+    # -- IMAGE_SOURCE: either 'camera' or 'imagelist'
+    # SOURCE = 'video'
     SOURCE = 'camera'
     
     if SOURCE == 'video':
@@ -252,28 +276,28 @@ if __name__=="__main__":
             # Capture frame-by-frame
             ret, frame = cap.read()
             
-            #-- Detect keypoints
+            # -- Detect keypoints
             keypoints, _ = crop_detect(frame, green_min, green_max, blur=3, 
                                         crop_params=None, search_window=window, imshow=False)
-            #-- Draw search window
+            # -- Draw search window
             frame     = draw_window(frame, window)
 
-            #-- click ENTER on the image window to proceed
+            # -- click ENTER on the image window to proceed
             draw_keypoints(frame, keypoints, imshow=True)
 
-            #-- press q to quit
+            # -- press q to quit
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
         
     else:
-        #-- Read image list from file:
+        # -- Read image list from file:
         image_list = []
         image_list.append(cv2.imread("crop.jpg"))
-        #image_list.append(cv2.imread("crop2.jpg"))
-        #image_list.append(cv2.imread("crop3.jpg"))
+        # image_list.append(cv2.imread("crop2.jpg"))
+        # image_list.append(cv2.imread("crop3.jpg"))
 
         for image in image_list:
-            #-- Detect keypoints
+            # -- Detect keypoints
             keypoints, _ = crop_detect(image, green_min, green_max, blur=5, 
                                         crop_params=None, search_window=window, imshow=True)
             
@@ -282,13 +306,13 @@ if __name__=="__main__":
             cv2.waitKey(0)            
             
             image     = draw_window(image, window, imshow=True)
-            #-- enter to proceed
+            # -- enter to proceed
             cv2.waitKey(0)
             
-            #-- click ENTER on the image window to proceed
+            # -- click ENTER on the image window to proceed
             image     = draw_keypoints(image, keypoints, imshow=True)            
             cv2.waitKey(0)
-            #-- Draw search window
+            # -- Draw search window
         
             image    = draw_frame(image)
             cv2.imshow("Frame", image)
