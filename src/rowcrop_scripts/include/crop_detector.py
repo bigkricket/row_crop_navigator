@@ -48,6 +48,7 @@ def crop_detect(image,  # -- The frame (cv standard)
 
     # - Apply HSV threshold
     mask = cv2.inRange(hsv, hsv_min, hsv_max)
+    #cv2.imshow("Mask", image)
 
     # - Show HSV Mask
     if imshow:
@@ -80,12 +81,13 @@ def crop_detect(image,  # -- The frame (cv standard)
     cnts = imutils.grab_contours(cnts)
 
     # loop over the contours
+    key_points =[]
     for c in cnts:
-	    # compute the center of the contour
-	    M = cv2.moments(c)
+        # compute the center of the contour
+        M = cv2.moments(c)
         cX = int(M["m10"] / M["m00"])
-	    cY = int(M["m01"] / M["m00"])
-        keypoints[c] = cv2.KeyPoint(cX, cY, 1)
+        cY = int(M["m01"] / M["m00"])
+        key_points.append(cv2.KeyPoint(cX, cY, 1))
 	    
     # - build default crop detection parameters, if none have been provided
     if crop_params is None:
@@ -126,9 +128,9 @@ def crop_detect(image,  # -- The frame (cv standard)
         cv2.imshow("Reverse Mask", reversemask)
         cv2.waitKey(0)
         
-    # keypoints = detector.detect(reversemask)
+    #keypoints = detector.compute(reversemask)
 
-    return keypoints, reversemask
+    return key_points, reversemask
 
 # ---------- Draw detected crops: returns the image
 # -- return(im_with_keypoints)
@@ -137,11 +139,6 @@ def draw_keypoints(image,                   #-- Input image
                    line_color=(0,0,255),    #-- line's color (b,g,r)
                    imshow=False             #-- show the result
                   ):
-        # draw the contour and center of the shape on the image
-	    cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
-	    cv2.circle(image, (cX, cY), 7, (255, 255, 255), -1)
-	    cv2.putText(image, "center", (cX - 20, cY - 20),
-		cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
     
     # -- Draw detected crops as red circles.
     # -- cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS ensures the size of the circle corresponds to the size of crop

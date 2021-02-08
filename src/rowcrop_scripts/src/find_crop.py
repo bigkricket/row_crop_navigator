@@ -134,7 +134,7 @@ def main(args):
     green_max = (101, 255, 255) 
     # green_min = (82,31,62)
     # green_max = (106, 116, 193)     
-    green_min = (25,52,72)
+    green_min = (25,17,47)
     green_max = (126, 255, 255)     
     
     blur     = 5
